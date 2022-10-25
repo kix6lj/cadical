@@ -178,6 +178,7 @@ void Internal::add_original_lit (int lit) {
   } else {
     if (proof) proof->add_original_clause (original);
     add_new_original_clause ();
+    parse_xor_mode = 0;
     original.clear ();
   }
 }

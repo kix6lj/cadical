@@ -210,6 +210,12 @@ const char * Parser::parse_dimacs_non_profiled (int & vars, int strict) {
       if (ch == EOF) break;
       continue;
     }
+    
+    if (ch == 'x') {
+      internal->parse_xor_mode = true;
+      continue;
+    }
+
     if (ch == 'a' && found_inccnf_header) break;
     const char * err = parse_lit (ch, lit, vars, strict);
     if (err) return err;
@@ -227,7 +233,7 @@ const char * Parser::parse_dimacs_non_profiled (int & vars, int strict) {
   if (lit) PER ("last clause without terminating '0'");
 
   if (!found_inccnf_header && parsed < clauses && strict != FORCED)
-    PER ("clause missing");
+    PER ("%d clause missing", parsed);
 
 #ifndef QUIET
   double end = internal->time ();

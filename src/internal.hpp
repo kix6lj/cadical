@@ -190,6 +190,7 @@ struct Internal {
   vector<int> constraint;       // literals of the constraint
   bool unsat_constraint;        // constraint used for unsatisfiability?
   bool marked_failed;           // are the failed assumptions marked?
+  bool parse_xor_mode;          // are original added literals from a xor-clause?
   vector<int> original;         // original added literals
   vector<int> levels;           // decision levels in learned clause
   vector<int> analyzed;         // analyzed literals in 'analyze'
@@ -517,6 +518,7 @@ struct Internal {
   void mark_garbage (Clause *);
   void assign_original_unit (int);
   void add_new_original_clause ();
+  void post_add_original_clasue(bool skip);
   Clause * new_learned_redundant_clause (int glue);
   Clause * new_hyper_binary_resolved_clause (bool red, int glue);
   Clause * new_clause_as (const Clause * orig);

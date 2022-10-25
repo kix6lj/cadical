@@ -6,24 +6,29 @@ namespace CaDiCaL {
 
 // Signed marking or unmarking of a clause or the global 'clause'.
 
-void Internal::mark (Clause * c) {
-  for (const auto & lit : *c) mark (lit);
+void Internal::mark(Clause *c) {
+  for (const auto &lit : *c)
+    mark(lit);
 }
 
-void Internal::mark2 (Clause * c) {
-  for (const auto & lit : *c) mark2 (lit);
+void Internal::mark2(Clause *c) {
+  for (const auto &lit : *c)
+    mark2(lit);
 }
 
-void Internal::unmark (Clause * c) {
-  for (const auto & lit : *c) unmark (lit);
+void Internal::unmark(Clause *c) {
+  for (const auto &lit : *c)
+    unmark(lit);
 }
 
-void Internal::mark_clause () {
-  for (const auto & lit : clause) mark (lit);
+void Internal::mark_clause() {
+  for (const auto &lit : clause)
+    mark(lit);
 }
 
-void Internal::unmark_clause () {
-  for (const auto & lit : clause) unmark (lit);
+void Internal::unmark_clause() {
+  for (const auto &lit : clause)
+    unmark(lit);
 }
 
 /*------------------------------------------------------------------------*/
@@ -34,12 +39,12 @@ void Internal::unmark_clause () {
 // Note that 'mark_removed (int lit)' will also mark the blocking flag of
 // '-lit' to trigger reconsidering blocking clauses on '-lit'.
 
-void Internal::mark_removed (Clause * c, int except) {
-  LOG (c, "marking removed");
-  assert (!c->redundant);
-  for (const auto & lit : *c)
+void Internal::mark_removed(Clause *c, int except) {
+  LOG(c, "marking removed");
+  assert(!c->redundant);
+  for (const auto &lit : *c)
     if (lit != except)
-      mark_removed (lit);
+      mark_removed(lit);
 }
 
 // Mark the variables of a (redundant or irredundant) clause to 'have been
@@ -51,40 +56,44 @@ void Internal::mark_removed (Clause * c, int except) {
 // 'ternary' preprocessing reconsider clauses on an added literal as well as
 // trying to block clauses on it.
 
-inline void Internal::mark_added (int lit, int size, bool redundant) {
-  mark_subsume (lit);
+inline void Internal::mark_added(int lit, int size, bool redundant) {
+  mark_subsume(lit);
   if (size == 3)
-    mark_ternary (lit);
+    mark_ternary(lit);
   if (!redundant)
-    mark_block (lit);
+    mark_block(lit);
 }
 
-void Internal::mark_added (Clause * c) {
-  LOG (c, "marking added");
-  assert (likely_to_be_kept_clause (c));
-  for (const auto & lit : *c)
-    mark_added (lit, c->size, c->redundant);
+void Internal::mark_added(Clause *c) {
+  LOG(c, "marking added");
+  assert(likely_to_be_kept_clause(c));
+  for (const auto &lit : *c)
+    mark_added(lit, c->size, c->redundant);
 }
 
 /*------------------------------------------------------------------------*/
 
-Clause * Internal::new_clause (bool red, int glue) {
+Clause *Internal::new_clause(bool red, int glue) {
 
-  assert (clause.size () <= (size_t) INT_MAX);
-  const int size = (int) clause.size ();
-  assert (size >= 2);
+  assert(clause.size() <= (size_t)INT_MAX);
+  const int size = (int)clause.size();
+  assert(size >= 2);
 
-  if (glue > size) glue = size;
+  if (glue > size)
+    glue = size;
 
   // Determine whether this clauses should be kept all the time.
   //
   bool keep;
-  if (!red) keep = true;
-  else if (glue <= opts.reducetier1glue) keep = true;
-  else keep = false;
+  if (!red)
+    keep = true;
+  else if (glue <= opts.reducetier1glue)
+    keep = true;
+  else
+    keep = false;
 
-  size_t bytes = Clause::bytes (size);
-  Clause * c = (Clause *) new char[bytes];
+  size_t bytes = Clause::bytes(size);
+  Clause *c = (Clause *)new char[bytes];
 
   stats.added.total++;
 #ifdef LOGGING
@@ -113,12 +122,13 @@ Clause * Internal::new_clause (bool red, int glue) {
   c->size = size;
   c->pos = 2;
 
-  for (int i = 0; i < size; i++) c->literals[i] = clause[i];
+  for (int i = 0; i < size; i++)
+    c->literals[i] = clause[i];
 
   // Just checking that we did not mess up our sophisticated memory layout.
   // This might be compiler dependent though. Crucial for correctness.
   //
-  assert (c->bytes () == bytes);
+  assert(c->bytes() == bytes);
 
   stats.current.total++;
   stats.added.total++;
@@ -132,37 +142,41 @@ Clause * Internal::new_clause (bool red, int glue) {
     stats.added.irredundant++;
   }
 
-  clauses.push_back (c);
-  LOG (c, "new pointer %p", (void*) c);
+  clauses.push_back(c);
+  LOG(c, "new pointer %p", (void *)c);
 
-  if (likely_to_be_kept_clause (c)) mark_added (c);
+  if (likely_to_be_kept_clause(c))
+    mark_added(c);
 
   return c;
 }
 
 /*------------------------------------------------------------------------*/
 
-void Internal::promote_clause (Clause * c, int new_glue) {
-  assert (c->redundant);
-  if (c->keep) return;
-  if (c->hyper) return;
+void Internal::promote_clause(Clause *c, int new_glue) {
+  assert(c->redundant);
+  if (c->keep)
+    return;
+  if (c->hyper)
+    return;
   int old_glue = c->glue;
-  if (new_glue >= old_glue) return;
+  if (new_glue >= old_glue)
+    return;
   if (!c->keep && new_glue <= opts.reducetier1glue) {
-    LOG (c, "promoting with new glue %d to tier1", new_glue);
+    LOG(c, "promoting with new glue %d to tier1", new_glue);
     stats.promoted1++;
     c->keep = true;
   } else if (old_glue > opts.reducetier2glue &&
              new_glue <= opts.reducetier2glue) {
-    LOG (c, "promoting with new glue %d to tier2", new_glue);
+    LOG(c, "promoting with new glue %d to tier2", new_glue);
     stats.promoted2++;
     c->used = 2;
   } else if (c->keep)
-    LOG (c, "keeping with new glue %d in tier1", new_glue);
+    LOG(c, "keeping with new glue %d in tier1", new_glue);
   else if (old_glue <= opts.reducetier2glue)
-    LOG (c, "keeping with new glue %d in tier2", new_glue);
+    LOG(c, "keeping with new glue %d in tier2", new_glue);
   else
-    LOG (c, "keeping with new glue %d in tier3", new_glue);
+    LOG(c, "keeping with new glue %d in tier3", new_glue);
   stats.improvedglue++;
   c->glue = new_glue;
 }
@@ -177,29 +191,32 @@ void Internal::promote_clause (Clause * c, int new_glue) {
 // resulting clause as 'added'.  The result is the number of (aligned)
 // removed bytes, resulting from shrinking the clause.
 //
-size_t Internal::shrink_clause (Clause * c, int new_size) {
+size_t Internal::shrink_clause(Clause *c, int new_size) {
 
-  assert (new_size >= 2);
-  assert (new_size < c->size);
+  assert(new_size >= 2);
+  assert(new_size < c->size);
 #ifndef NDEBUG
   for (int i = c->size; i < new_size; i++)
     c->literals[i] = 0;
 #endif
 
-  if (c->pos >= new_size) c->pos = 2;
+  if (c->pos >= new_size)
+    c->pos = 2;
 
-  size_t old_bytes = c->bytes ();
+  size_t old_bytes = c->bytes();
   c->size = new_size;
-  size_t new_bytes = c->bytes ();
+  size_t new_bytes = c->bytes();
   size_t res = old_bytes - new_bytes;
 
-  if (c->redundant) promote_clause (c, min (c->size-1, c->glue));
+  if (c->redundant)
+    promote_clause(c, min(c->size - 1, c->glue));
   else if (old_bytes > new_bytes) {
-    assert (stats.irrbytes >= (int64_t) res);
+    assert(stats.irrbytes >= (int64_t)res);
     stats.irrbytes -= res;
   }
 
-  if (likely_to_be_kept_clause (c)) mark_added (c);
+  if (likely_to_be_kept_clause(c))
+    mark_added(c);
 
   return res;
 }
@@ -208,19 +225,20 @@ size_t Internal::shrink_clause (Clause * c, int new_size) {
 // arena nothing happens.  If the clause is not in the arena its memory is
 // reclaimed immediately.
 
-void Internal::deallocate_clause (Clause * c) {
-  char * p = (char*) c;
-  if (arena.contains (p)) return;
-  LOG (c, "deallocate pointer %p", (void*) c);
-  delete [] p;
+void Internal::deallocate_clause(Clause *c) {
+  char *p = (char *)c;
+  if (arena.contains(p))
+    return;
+  LOG(c, "deallocate pointer %p", (void *)c);
+  delete[] p;
 }
 
-void Internal::delete_clause (Clause * c) {
-  LOG (c, "delete pointer %p", (void*) c);
-  size_t bytes = c->bytes ();
+void Internal::delete_clause(Clause *c) {
+  LOG(c, "delete pointer %p", (void *)c);
+  size_t bytes = c->bytes();
   stats.collected += bytes;
   if (c->garbage) {
-    assert (stats.garbage >= (int64_t) bytes);
+    assert(stats.garbage >= (int64_t)bytes);
     stats.garbage -= bytes;
 
     // See the discussion in 'propagate' on avoiding to eagerly trace binary
@@ -232,9 +250,9 @@ void Internal::delete_clause (Clause * c) {
     // clauses occurs later in the proof file.
     //
     if (proof && c->size == 2)
-      proof->delete_clause (c);
+      proof->delete_clause(c);
   }
-  deallocate_clause (c);
+  deallocate_clause(c);
 }
 
 // We want to eagerly update statistics as soon clauses are marked garbage.
@@ -253,35 +271,35 @@ void Internal::delete_clause (Clause * c) {
 // In order not to miss any update to these clause statistics we call
 // 'check_clause_stats' after garbage collection in debugging mode.
 //
-void Internal::mark_garbage (Clause * c) {
+void Internal::mark_garbage(Clause *c) {
 
-  assert (!c->garbage);
+  assert(!c->garbage);
 
   // Delay tracing deletion of binary clauses.  See the discussion above in
   // 'delete_clause' and also in 'propagate'.
   //
   if (proof && c->size != 2)
-    proof->delete_clause (c);
+    proof->delete_clause(c);
 
-  assert (stats.current.total > 0);
+  assert(stats.current.total > 0);
   stats.current.total--;
 
-  size_t bytes = c->bytes ();
+  size_t bytes = c->bytes();
   if (c->redundant) {
-    assert (stats.current.redundant > 0);
+    assert(stats.current.redundant > 0);
     stats.current.redundant--;
   } else {
-    assert (stats.current.irredundant > 0);
+    assert(stats.current.irredundant > 0);
     stats.current.irredundant--;
-    assert (stats.irrbytes >= (int64_t) bytes);
+    assert(stats.irrbytes >= (int64_t)bytes);
     stats.irrbytes -= bytes;
-    mark_removed (c);
+    mark_removed(c);
   }
   stats.garbage += bytes;
   c->garbage = true;
   c->used = 0;
 
-  LOG (c, "marked garbage pointer %p", (void*) c);
+  LOG(c, "marked garbage pointer %p", (void *)c);
 }
 
 /*------------------------------------------------------------------------*/
@@ -289,154 +307,194 @@ void Internal::mark_garbage (Clause * c) {
 // Almost the same function as 'search_assign' except that we do not pretend
 // to learn a new unit clause (which was confusing in log files).
 
-void Internal::assign_original_unit (int lit) {
-  assert (!level);
-  const int idx = vidx (lit);
-  assert (!vals[idx]);
-  assert (!flags (idx).eliminated ());
-  Var & v = var (idx);
+void Internal::assign_original_unit(int lit) {
+  assert(!level);
+  const int idx = vidx(lit);
+  assert(!vals[idx]);
+  assert(!flags(idx).eliminated());
+  Var &v = var(idx);
   v.level = level;
-  v.trail = (int) trail.size ();
+  v.trail = (int)trail.size();
   v.reason = 0;
-  const signed char tmp = sign (lit);
+  const signed char tmp = sign(lit);
   vals[idx] = tmp;
   vals[-idx] = -tmp;
-  assert (val (lit) > 0);
-  assert (val (-lit) < 0);
-  trail.push_back (lit);
-  LOG ("original unit assign %d", lit);
-  mark_fixed (lit);
-  if (propagate ()) return;
-  LOG ("propagation of original unit results in conflict");
-  learn_empty_clause ();
+  assert(val(lit) > 0);
+  assert(val(-lit) < 0);
+  trail.push_back(lit);
+  LOG("original unit assign %d", lit);
+  mark_fixed(lit);
+  if (propagate())
+    return;
+  LOG("propagation of original unit results in conflict");
+  learn_empty_clause();
 }
 
 // New clause added through the API, e.g., while parsing a DIMACS file.
 //
-void Internal::add_new_original_clause () {
-  if (level) backtrack ();
-  LOG (original, "original clause");
+void Internal::add_new_original_clause() {
+  if (level)
+    backtrack();
+  LOG(original, "original clause");
   bool skip = false;
   if (unsat) {
-    LOG ("skipping clause since formula already inconsistent");
+    LOG("skipping clause since formula already inconsistent");
     skip = true;
+  } else if (parse_xor_mode == true) {
+    LOG("Parsing an XOR-Clause");
+    vector<int> remaining_lits;
+    for (const auto &lit : original) {
+      int tmp = marked(lit);
+      if (tmp == 0)
+	remaining_lits.push_back(lit);
+    }
+    for (const auto &lit : original) {
+      unmark(lit);
+    }
+
+    original = remaining_lits;
+    size_t cl_size = original.size();
+    for (size_t offset = 0; offset < (1 << cl_size); ++offset) {
+      if ((__builtin_popcount(offset) & 1) == 0) {
+	// FIXME: currently only supports xor-clauses evaluated to 0, e.g. l1 ^ l2 ^ l3 = 0
+	for (size_t i = 0; i < cl_size; ++i)
+	  if ((offset >> i) & 1)
+	    clause.push_back(remaining_lits[i]);
+	post_add_original_clasue(skip);
+      }
+    }
+
+    // FIXME: currently only translate xor-clauses into cnf
   } else {
-    assert (clause.empty ());
-    for (const auto & lit : original) {
-      int tmp = marked (lit);
+    assert(clause.empty());
+    for (const auto &lit : original) {
+      int tmp = marked(lit);
       if (tmp > 0) {
-        LOG ("removing duplicated literal %d", lit);
+        LOG("removing duplicated literal %d", lit);
       } else if (tmp < 0) {
-        LOG ("tautological since both %d and %d occur", -lit, lit);
+        LOG("tautological since both %d and %d occur", -lit, lit);
         skip = true;
       } else {
-        mark (lit);
-        tmp = val (lit);
+        mark(lit);
+        tmp = val(lit);
         if (tmp < 0) {
-          LOG ("removing falsified literal %d", lit);
+          LOG("removing falsified literal %d", lit);
         } else if (tmp > 0) {
-          LOG ("satisfied since literal %d true", lit);
+          LOG("satisfied since literal %d true", lit);
           skip = true;
         } else {
-          clause.push_back (lit);
-          assert (flags (lit).status != Flags::UNUSED);
+          clause.push_back(lit);
+          assert(flags(lit).status != Flags::UNUSED);
         }
       }
     }
-    for (const auto & lit : original)
-      unmark (lit);
+    for (const auto &lit : original)
+      unmark(lit);
   }
+
+  post_add_original_clasue(skip);
+}
+
+void Internal::post_add_original_clasue(bool skip) {
   if (skip) {
-    if (proof) proof->delete_clause (original);
+    if (proof)
+      proof->delete_clause(original);
   } else {
-    size_t size = clause.size ();
+    size_t size = clause.size();
     if (!size) {
       if (!unsat) {
-        if (!original.size ()) VERBOSE (1, "found empty original clause");
-        else MSG ("found falsified original clause");
+        if (!original.size())
+          VERBOSE(1, "found empty original clause");
+        else
+          MSG("found falsified original clause");
         unsat = true;
       }
     } else if (size == 1) {
-      assign_original_unit (clause[0]);
+      assign_original_unit(clause[0]);
     } else {
-      Clause * c = new_clause (false);
-      watch_clause (c);
+      Clause *c = new_clause(false);
+      watch_clause(c);
     }
-    if (original.size () > size) {
-      external->check_learned_clause ();
+    if (original.size() > size) {
+      external->check_learned_clause();
       if (proof) {
-        proof->add_derived_clause (clause);
-        proof->delete_clause (original);
+        proof->add_derived_clause(clause);
+        proof->delete_clause(original);
       }
     }
   }
-  clause.clear ();
+  clause.clear();  
 }
 
 // Add learned new clause during conflict analysis and watch it. Requires
 // that the clause is at least of size 2, and the first two literals
 // are assigned at the highest decision level.
 //
-Clause * Internal::new_learned_redundant_clause (int glue) {
-  assert (clause.size () > 1);
+Clause *Internal::new_learned_redundant_clause(int glue) {
+  assert(clause.size() > 1);
 #ifndef NDEBUG
-  for (size_t i = 2; i < clause.size (); i++)
-    assert (var (clause[0]).level >= var (clause[i]).level),
-    assert (var (clause[1]).level >= var (clause[i]).level);
+  for (size_t i = 2; i < clause.size(); i++)
+    assert(var(clause[0]).level >= var(clause[i]).level),
+        assert(var(clause[1]).level >= var(clause[i]).level);
 #endif
-  external->check_learned_clause ();
-  Clause * res = new_clause (true, glue);
-  if (proof) proof->add_derived_clause (res);
-  assert (watching ());
-  watch_clause (res);
+  external->check_learned_clause();
+  Clause *res = new_clause(true, glue);
+  if (proof)
+    proof->add_derived_clause(res);
+  assert(watching());
+  watch_clause(res);
   return res;
 }
 
 // Add hyper binary resolved clause during 'probing'.
 //
-Clause * Internal::new_hyper_binary_resolved_clause (bool red, int glue) {
-  external->check_learned_clause ();
-  Clause * res = new_clause (red, glue);
-  if (proof) proof->add_derived_clause (res);
-  assert (watching ());
-  watch_clause (res);
+Clause *Internal::new_hyper_binary_resolved_clause(bool red, int glue) {
+  external->check_learned_clause();
+  Clause *res = new_clause(red, glue);
+  if (proof)
+    proof->add_derived_clause(res);
+  assert(watching());
+  watch_clause(res);
   return res;
 }
 
 // Add hyper ternary resolved clause during 'ternary'.
 //
-Clause * Internal::new_hyper_ternary_resolved_clause (bool red) {
-  external->check_learned_clause ();
-  size_t size = clause.size ();
-  Clause * res = new_clause (red, size);
-  if (proof) proof->add_derived_clause (res);
-  assert (!watching ());
+Clause *Internal::new_hyper_ternary_resolved_clause(bool red) {
+  external->check_learned_clause();
+  size_t size = clause.size();
+  Clause *res = new_clause(red, size);
+  if (proof)
+    proof->add_derived_clause(res);
+  assert(!watching());
   return res;
 }
 
 // Add a new clause with same glue and redundancy as 'orig' but literals are
 // assumed to be in 'clause' in 'decompose' and 'vivify'.
 //
-Clause * Internal::new_clause_as (const Clause * orig) {
-  external->check_learned_clause ();
+Clause *Internal::new_clause_as(const Clause *orig) {
+  external->check_learned_clause();
   const int new_glue = orig->glue;
-  Clause * res = new_clause (orig->redundant, new_glue);
-  assert (!orig->redundant || !orig->keep || res->keep);
-  if (proof) proof->add_derived_clause (res);
-  assert (watching ());
-  watch_clause (res);
+  Clause *res = new_clause(orig->redundant, new_glue);
+  assert(!orig->redundant || !orig->keep || res->keep);
+  if (proof)
+    proof->add_derived_clause(res);
+  assert(watching());
+  watch_clause(res);
   return res;
 }
 
 // Add resolved clause during resolution, e.g., bounded variable
 // elimination, but do not connect its occurrences here.
 //
-Clause * Internal::new_resolved_irredundant_clause () {
-  external->check_learned_clause ();
-  Clause * res = new_clause (false);
-  if (proof) proof->add_derived_clause (res);
-  assert (!watching ());
+Clause *Internal::new_resolved_irredundant_clause() {
+  external->check_learned_clause();
+  Clause *res = new_clause(false);
+  if (proof)
+    proof->add_derived_clause(res);
+  assert(!watching());
   return res;
 }
 
-}
+} // namespace CaDiCaL
