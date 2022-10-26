@@ -1,4 +1,5 @@
 #include "internal.hpp"
+#include "inttypes.hpp"
 
 namespace CaDiCaL {
 
@@ -343,10 +344,13 @@ void Internal::add_new_original_clause() {
   } else if (parse_xor_mode == true) {
     LOG("Parsing an XOR-Clause");
     vector<int> remaining_lits;
+    bool flip = 1;
     for (const auto &lit : original) {
       int tmp = marked(lit);
+      if (lit < 0) flip ^= 1;
       if (tmp == 0)
-	remaining_lits.push_back(lit);
+	remaining_lits.push_back(abs(lit));
+      mark(lit);
     }
     for (const auto &lit : original) {
       unmark(lit);
@@ -355,16 +359,17 @@ void Internal::add_new_original_clause() {
     original = remaining_lits;
     size_t cl_size = original.size();
     for (size_t offset = 0; offset < (1 << cl_size); ++offset) {
-      if ((__builtin_popcount(offset) & 1) == 0) {
-	// FIXME: currently only supports xor-clauses evaluated to 0, e.g. l1 ^ l2 ^ l3 = 0
+      if ((__builtin_popcount(offset) & 1) == flip) {
 	for (size_t i = 0; i < cl_size; ++i)
 	  if ((offset >> i) & 1)
 	    clause.push_back(remaining_lits[i]);
+	  else
+	    clause.push_back(-remaining_lits[i]);
 	post_add_original_clasue(skip);
       }
     }
 
-    // FIXME: currently only translate xor-clauses into cnf
+    xclauses->add_clause(remaining_lits, flip);
   } else {
     assert(clause.empty());
     for (const auto &lit : original) {
@@ -390,9 +395,9 @@ void Internal::add_new_original_clause() {
     }
     for (const auto &lit : original)
       unmark(lit);
+    
+    post_add_original_clasue(skip);
   }
-
-  post_add_original_clasue(skip);
 }
 
 void Internal::post_add_original_clasue(bool skip) {

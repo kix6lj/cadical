@@ -1,4 +1,5 @@
 #include "internal.hpp"
+#include "gaussian.hpp"
 
 namespace CaDiCaL {
 
@@ -50,6 +51,7 @@ Internal::Internal ()
   lits (this->max_var)
 {
   control.push_back (Level (0, 0));
+  xclauses = new Raw_XOR_Equations(this);
 }
 
 Internal::~Internal () {
@@ -583,6 +585,7 @@ int Internal::local_search () {
 int Internal::solve (bool preprocess_only) {
   assert (clause.empty ());
   START (solve);
+  xclauses->analyze();
   if (preprocess_only) LOG ("internal solving in preprocessing only mode");
   else LOG ("internal solving in full mode");
   init_report_limits ();

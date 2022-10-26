@@ -91,6 +91,7 @@ extern "C" {
 #include "version.hpp"
 #include "vivify.hpp"
 #include "watch.hpp"
+#include "gaussian.hpp"
 
 /*------------------------------------------------------------------------*/
 
@@ -221,6 +222,8 @@ struct Internal {
   Internal * internal;          // proxy to 'this' in macros
   External * external;          // proxy to 'external' buddy in 'Solver'
 
+  Raw_XOR_Equations * xclauses; // handler of the xor clauses
+  
   /*----------------------------------------------------------------------*/
 
   // Asynchronous termination flag written by 'terminate' and read by
@@ -1121,7 +1124,7 @@ struct Internal {
   const char * parse_dimacs (FILE *);
   const char * parse_dimacs (const char *);
   const char * parse_solution (const char *);
-
+  
   // Enable and disable proof logging and checking.
   //
   void new_proof_on_demand ();
