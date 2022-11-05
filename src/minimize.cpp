@@ -1,4 +1,5 @@
 #include "internal.hpp"
+#include <cstdio>
 
 namespace CaDiCaL {
 
@@ -19,21 +20,31 @@ bool Internal::minimize_literal (int lit, int depth) {
   assert(val(lit) > 0);
   Flags & f = flags (lit);
   Var & v = var (lit);
+  Clause *r = get_reason(v);
   if (!v.level || f.removable || f.keep) return true;
-  if (!v.reason || f.poison || v.level == level) return false;
+  if (!r || f.poison || v.level == level) return false;
   const Level & l = control[v.level];
   if (!depth && l.seen.count < 2) return false;   // Don Knuth's idea
   if (v.trail <= l.seen.trail) return false;      // new early abort
   if (depth > opts.minimizedepth) return false;
   bool res = true;
-  assert (v.reason);
-  const const_literal_iterator end = v.reason->end ();
+  assert (r);
+  const const_literal_iterator end = r->end ();
   const_literal_iterator i;
-  for (i = v.reason->begin (); res && i != end; i++) {
+  for (i = r->begin (); res && i != end; i++) {
     const int other = *i;
     if (other == lit) continue;
     res = minimize_literal (-other, depth + 1);
   }
+  bool flag = 0;
+  for (int x : *r)
+    if (x == lit)
+      flag = 1;
+  fprintf(stderr, "MINIMIZE %d: ", lit);
+  for (int x : *r)
+    fprintf(stderr, "%d ", x);
+  fprintf(stderr, "\n");
+  assert(lit == 0 || flag);
   if (res) f.removable = true; else f.poison = true;
   minimized.push_back (lit);
   if (!depth) LOG ("minimizing %d %s", lit, res ? "succeeded" : "failed");

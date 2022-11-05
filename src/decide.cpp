@@ -80,6 +80,13 @@ bool Internal::satisfied () {
   size_t assigned = trail.size ();
   if (propagated < assigned) return false;
   if ((size_t) level < assumptions.size () + (!!constraint.size ())) return false;
+  if (assigned == (size_t) max_var) {
+    for (auto x : trail)
+      fprintf(stderr, "%d ", x);
+    fprintf(stderr, "\n");
+    fprintf(stderr, "%d\n", max_var);
+    assert(xclauses->all_satisfied());
+  }
   return (assigned == (size_t) max_var);
 }
 

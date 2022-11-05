@@ -109,6 +109,9 @@ void Internal::backtrack (int new_level) {
     }
   }
   trail.resize (j);
+  // added for xor handling
+  xclauses->backtrack(new_level);
+  
   LOG ("unassigned %d literals %.0f%%",
     unassigned, percent (unassigned, unassigned + reassigned));
   LOG ("reassigned %d literals %.0f%%",

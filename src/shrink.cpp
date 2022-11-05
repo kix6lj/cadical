@@ -213,15 +213,17 @@ namespace CaDiCaL {
  #ifndef NDEBUG
     const Flags&f = flags(uip);
 #endif
-    const Var&v = var(uip);
-
+    Var&v = var(uip);
+    // UPDATED
+    Clause *vreason = get_reason(v);
+    
     assert(f.shrinkable);
     assert(v.level == blevel);
-    assert(v.reason);
+    assert(vreason);
 
-    if (resolve_large_clauses || v.reason->size == 2)
+    if (resolve_large_clauses || vreason->size == 2)
       {
-        const Clause &c = *v.reason;
+        const Clause &c = *vreason;
         LOG(v.reason, "resolving with reason");
         for(int lit : c) {
           if(lit == uip)

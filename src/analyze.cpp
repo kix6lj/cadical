@@ -12,6 +12,17 @@ namespace CaDiCaL {
 
 /*------------------------------------------------------------------------*/
 
+Clause *Internal::get_reason(Var &v) {
+  if (!v.from_xor)
+    return v.reason;
+  v.reason = xclauses->lazily_gen_reason(v.xor_reason.block, v.xor_reason.eqn);
+  v.from_xor = false;
+  v.reason_flag = true;
+  return v.reason;
+}
+
+/*------------------------------------------------------------------------*/
+
 void Internal::learn_empty_clause () {
   assert (!unsat);
   LOG ("learned empty clause");
@@ -284,10 +295,10 @@ inline bool Internal::bump_also_reason_literal (int lit) {
 inline void Internal::bump_also_reason_literals (int lit, int limit) {
   assert (lit);
   assert (limit > 0);
-  const Var & v = var (lit);
+  Var & v = var (lit);
   assert (val (lit));
   if (!v.level) return;
-  Clause * reason = v.reason;
+  Clause * reason = get_reason(v); // UPDATED
   if (!reason) return;
   for (const auto & other : *reason) {
     if (other == lit)  continue;
@@ -617,6 +628,7 @@ void Internal::analyze () {
 
   /*----------------------------------------------------------------------*/
 
+  /*
   if (opts.chrono) {
 
     int forced;
@@ -665,7 +677,7 @@ void Internal::analyze () {
     //
     backtrack (conflict_level);
   }
-
+  */
   // Actual conflict on root level, thus formula unsatisfiable.
   //
   if (!level) {
@@ -709,7 +721,9 @@ void Internal::analyze () {
       if (var (lit).level == level) uip = lit;
     }
     if (!--open) break;
-    reason = var (uip).reason;
+    // Updated
+    //    reason = var (uip).reason;
+    reason = get_reason(var (uip));
     LOG (reason, "analyzing %d reason", uip);
   }
   LOG ("first UIP %d", uip);
@@ -759,7 +773,7 @@ void Internal::analyze () {
   int jump;
   Clause * driving_clause = new_driving_clause (glue, jump);
   UPDATE_AVERAGE (averages.current.jump, jump);
-
+  
   int new_level = determine_actual_backtrack_level (jump);;
   UPDATE_AVERAGE (averages.current.level, new_level);
   backtrack (new_level);

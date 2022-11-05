@@ -358,16 +358,16 @@ void Internal::add_new_original_clause() {
 
     original = remaining_lits;
     size_t cl_size = original.size();
-    for (size_t offset = 0; offset < (1 << cl_size); ++offset) {
-      if ((__builtin_popcount(offset) & 1) == flip) {
-	for (size_t i = 0; i < cl_size; ++i)
-	  if ((offset >> i) & 1)
-	    clause.push_back(remaining_lits[i]);
-	  else
-	    clause.push_back(-remaining_lits[i]);
-	post_add_original_clasue(skip);
-      }
-    }
+    // for (size_t offset = 0; offset < (1 << cl_size); ++offset) {
+    //   if ((__builtin_popcount(offset) & 1) == flip) {
+    // 	for (size_t i = 0; i < cl_size; ++i)
+    // 	  if ((offset >> i) & 1)
+    // 	    clause.push_back(remaining_lits[i]);
+    // 	  else
+    // 	    clause.push_back(-remaining_lits[i]);
+    //    	post_add_original_clasue(skip);
+    //   }
+    // }
 
     xclauses->add_clause(remaining_lits, flip);
   } else {

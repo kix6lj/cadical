@@ -1,5 +1,6 @@
 #include "internal.hpp"
 #include "gaussian.hpp"
+#include "visualization.hpp"
 
 namespace CaDiCaL {
 
@@ -143,6 +144,8 @@ void Internal::enlarge (int new_max_var) {
   enlarge_zero (phases.prev, new_vsize);
   enlarge_zero (phases.min, new_vsize);
   enlarge_zero (marks, new_vsize);
+  enlarge_zero (gaussian_pos, new_vsize);
+  enlarge_init (gaussian_block, new_vsize, -1);
   vsize = new_vsize;
 }
 
@@ -190,7 +193,6 @@ void Internal::add_original_lit (int lit) {
 // This is the main CDCL loop with interleaved inprocessing.
 
 int Internal::cdcl_loop_with_inprocessing () {
-
   int res = 0;
 
   START (search);
@@ -209,12 +211,12 @@ int Internal::cdcl_loop_with_inprocessing () {
       break;
     else if (restarting ()) restart ();      // restart by backtracking
     else if (rephasing ()) rephase ();       // reset variable phases
-    else if (reducing ()) reduce ();         // collect useless clauses
+	 //    else if (reducing ()) reduce ();         // collect useless clauses
     else if (probing ()) probe ();           // failed literal probing
     else if (subsuming ()) subsume ();       // subsumption algorithm
-    else if (eliminating ()) elim ();        // variable elimination
-    else if (compacting ()) compact ();      // collect variables
-    else if (conditioning ()) condition ();  // globally blocked clauses
+	 //    else if (eliminating ()) elim ();        // variable elimination
+	 // else if (compacting ()) compact ();      // collect variables
+	 //    else if (conditioning ()) condition ();  // globally blocked clauses
     else res = decide ();                    // next decision
   }
 
@@ -583,9 +585,17 @@ int Internal::local_search () {
 /*------------------------------------------------------------------------*/
 
 int Internal::solve (bool preprocess_only) {
+  START(solve);
   assert (clause.empty ());
-  START (solve);
   xclauses->analyze();
+  
+  // {
+  //   GraphVisualizer g(internal);
+  //   FILE *f = fopen("tmp.dot", "w");
+  //   g.write_graph_dot(f);
+  //   fclose(f);
+  // }
+  
   if (preprocess_only) LOG ("internal solving in preprocessing only mode");
   else LOG ("internal solving in full mode");
   init_report_limits ();
@@ -595,10 +605,12 @@ int Internal::solve (bool preprocess_only) {
     init_preprocessing_limits ();
     if (!preprocess_only) init_search_limits ();
   }
-  if (!res) res = preprocess ();
+  // UPDATED
+  // if (!res) res = preprocess ();
   if (!preprocess_only) {
-    if (!res) res = local_search ();
-    if (!res) res = lucky_phases ();
+    // UPDATED
+    //    if (!res) res = local_search ();
+    //    if (!res) res = lucky_phases ();
     if (!res) res = cdcl_loop_with_inprocessing ();
   }
   reset_solving ();
