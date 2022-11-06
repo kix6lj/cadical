@@ -205,7 +205,10 @@ void Internal::update_reason_references () {
   for (auto & lit : trail) {
     if (!active (lit)) continue;
     Var & v = var (lit);
-    if (v.reason_flag) continue;
+    if (v.reason_flag) {
+      assert(!get_reason(v)->moved);
+      continue;
+    }
     Clause * c = v.reason;
     if (!c) continue;
     LOG (c, "updating assigned %d reason", lit);

@@ -211,7 +211,7 @@ int Internal::cdcl_loop_with_inprocessing () {
       break;
     else if (restarting ()) restart ();      // restart by backtracking
     else if (rephasing ()) rephase ();       // reset variable phases
-	 //    else if (reducing ()) reduce ();         // collect useless clauses
+    else if (reducing ()) reduce ();         // collect useless clauses
     else if (probing ()) probe ();           // failed literal probing
     else if (subsuming ()) subsume ();       // subsumption algorithm
 	 //    else if (eliminating ()) elim ();        // variable elimination

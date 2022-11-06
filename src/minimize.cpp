@@ -40,10 +40,6 @@ bool Internal::minimize_literal (int lit, int depth) {
   for (int x : *r)
     if (x == lit)
       flag = 1;
-  fprintf(stderr, "MINIMIZE %d: ", lit);
-  for (int x : *r)
-    fprintf(stderr, "%d ", x);
-  fprintf(stderr, "\n");
   assert(lit == 0 || flag);
   if (res) f.removable = true; else f.poison = true;
   minimized.push_back (lit);

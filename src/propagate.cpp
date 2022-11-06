@@ -49,7 +49,7 @@ inline int Internal::assignment_level(int lit, Clause *reason) {
 /*------------------------------------------------------------------------*/
 
 inline void Internal::xor_deduce_assign(int lit, int block, int eqn) {
-  fprintf(stderr, "XUP %d\n", lit);
+  LOG("XUP %d", lit);
   if (level)
     require_mode(SEARCH);
   const int idx = vidx(lit);
@@ -76,7 +76,7 @@ inline void Internal::xor_deduce_assign(int lit, int block, int eqn) {
 /*------------------------------------------------------------------------*/
 
 inline void Internal::search_assign(int lit, Clause *reason) {
-  fprintf(stderr, "UP %d\n", lit);
+  LOG("UP %d", lit);
   if (level)
     require_mode(SEARCH);
 

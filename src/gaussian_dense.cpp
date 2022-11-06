@@ -353,7 +353,7 @@ void GaussianDense::backtrack(int level) {
   for (; i != assigned.rend(); ++i) {
     Var &v = internal->var(*i);
     if (v.level > level) {
-      LOG("backtrack %d\n", *i);
+      LOG("backtrack %d", *i);
       int pos = internal->get_gaussian_pos(*i);
       unset_bit(marks, pos);
       unset_bit(assignment, pos);
@@ -374,7 +374,24 @@ Clause *GaussianDense::conflict(int eqn) {
   int bytes = Clause::bytes(size);
   Clause *reason = (Clause *)new char[bytes];
   reason->size = size;
-
+  reason->conditioned = false;
+  reason->covered = false;
+  reason->enqueued = false;
+  reason->frozen = false;
+  reason->garbage = false;
+  reason->gate = false;
+  reason->hyper = false;
+  reason->instantiated = false;
+  reason->keep = false;
+  reason->moved = false;
+  reason->reason = false;
+  reason->redundant = true;
+  reason->transred = false;
+  reason->subsume = false;
+  reason->vivified = false;
+  reason->vivify = false;
+  reason->used = 0;
+  
   // FIXME: Still need a better implementation
   int j = 0;
   while (count(ptr)) {
@@ -402,7 +419,24 @@ pair<Clause *, int> GaussianDense::analyze(int eqn) {
   int bytes = Clause::bytes(size);
   Clause *reason = (Clause *)new char[bytes];
   reason->size = size;
-
+  reason->conditioned = false;
+  reason->covered = false;
+  reason->enqueued = false;
+  reason->frozen = false;
+  reason->garbage = false;
+  reason->gate = false;
+  reason->hyper = false;
+  reason->instantiated = false;
+  reason->keep = false;
+  reason->moved = false;
+  reason->reason = false;
+  reason->redundant = true;
+  reason->transred = false;
+  reason->subsume = false;
+  reason->vivified = false;
+  reason->vivify = false;
+  reason->used = 0;
+  
   // FIXME: Still needs a better implementation
   LOG("analyze BASE: %d", var_id[base_col[eqn] - 1]);
 

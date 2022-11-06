@@ -161,7 +161,7 @@ vector<pair<int, int>> Raw_XOR_Equations::propagate(const vector<int> &lit,
 
 void Raw_XOR_Equations::backtrack(int level) {
   START(xbacktrack);
-  LOG("enter xbacktrack.....");
+  LOG("enter xbacktrack level %d\n", level);
   conflict_flag = false;
   for (auto *blk : blocks)
     blk->backtrack(level);
