@@ -79,6 +79,7 @@ struct Internal;
   PROFILE(walk, 2)                                                             \
   PROFILE(xpropagate, 3)                                                       \
   PROFILE(xbacktrack, 3)                                                       \
+  PROFILE(xanalyze, 3)							\
   /*------------------------------------------------------------------------*/
 
 // See 'START' and 'STOP' in 'macros.hpp' too.

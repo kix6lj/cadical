@@ -161,7 +161,7 @@ vector<pair<int, int>> Raw_XOR_Equations::propagate(const vector<int> &lit,
 
 void Raw_XOR_Equations::backtrack(int level) {
   START(xbacktrack);
-  fprintf(stderr, "backtrack.....\n");
+  LOG("enter xbacktrack.....");
   conflict_flag = false;
   for (auto *blk : blocks)
     blk->backtrack(level);
@@ -176,6 +176,7 @@ void Raw_XOR_Equations::backtrack(int level) {
   }
   generated_reasons.resize(i - generated_reasons.begin());
   STOP(xbacktrack);
+  LOG("exit xbacktrack");
 }
 
 Clause *Raw_XOR_Equations::lazily_gen_reason(int block, int eqn) {

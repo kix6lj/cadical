@@ -161,7 +161,7 @@ void GaussianDense::remove_watch(int col, int eqn) {
       i--;
   }
 
-  fprintf(stderr, "REMOVE %d %d\n", var_id[col - 1], eqn);
+  LOG("REMOVE %d %d\n", var_id[col - 1], eqn);
   assert(i + 1 == end);
   we.resize(i - we.begin());
   if (we.size() == 0)
@@ -353,7 +353,7 @@ void GaussianDense::backtrack(int level) {
   for (; i != assigned.rend(); ++i) {
     Var &v = internal->var(*i);
     if (v.level > level) {
-      fprintf(stderr, "backtrack %d\n", *i);
+      LOG("backtrack %d\n", *i);
       int pos = internal->get_gaussian_pos(*i);
       unset_bit(marks, pos);
       unset_bit(assignment, pos);
@@ -367,6 +367,7 @@ void GaussianDense::backtrack(int level) {
 }
 
 Clause *GaussianDense::conflict(int eqn) {
+  START(xanalyze);
   char *ptr = eqn_start_ptr(eqn);
   int size = count(ptr);
 
@@ -374,21 +375,25 @@ Clause *GaussianDense::conflict(int eqn) {
   Clause *reason = (Clause *)new char[bytes];
   reason->size = size;
 
-  // FIXME: maybe needs a better implementation
-  for (int i = 1, j = 0; i <= num_vars; ++i)
-    if (get_bit(ptr, i)) {
-      assert(internal->val(var_id[i - 1]) != 0);
-      reason->literals[j++] = -internal->val(var_id[i - 1]) * var_id[i - 1];
-    }
-
-  fprintf(stderr, "CONFLICT: ");
+  // FIXME: Still need a better implementation
+  int j = 0;
+  while (count(ptr)) {
+    int msb = msb_position(ptr);
+    assert(internal->val(var_id[msb - 1]) != 0);
+    reason->literals[j++] = -internal->val(var_id[msb - 1]) * var_id[msb - 1];
+    unset_bit(ptr, msb);
+  }
   for (int i = 0; i < size; ++i)
-    fprintf(stderr, "%d ", reason->literals[i]);
-  fprintf(stderr, "\n");
+    set_bit(ptr, internal->get_gaussian_pos(abs(reason->literals[i])));
+  
+  LOG("gen xconflict");
+  
+  STOP(xanalyze);
   return reason;
 }
 
 pair<Clause *, int> GaussianDense::analyze(int eqn) {
+  START(xanalyze);
   LOG("Analyze conflict in block %d's %d equation", index, eqn);
 
   char *ptr = eqn_start_ptr(eqn);
@@ -398,25 +403,25 @@ pair<Clause *, int> GaussianDense::analyze(int eqn) {
   Clause *reason = (Clause *)new char[bytes];
   reason->size = size;
 
-  // FIXME: maybe needs a better implementation
-  fprintf(stderr, "BASE: %d\n", var_id[base_col[eqn] - 1]);
+  // FIXME: Still needs a better implementation
+  LOG("analyze BASE: %d", var_id[base_col[eqn] - 1]);
 
   assert(get_bit(ptr, base_col[eqn]));
-  
-  for (int i = 1, j = 0; i <= num_vars; ++i)
-    if (get_bit(ptr, i)) {
-      assert(internal->val(var_id[i - 1]) != 0);
-      if (i == base_col[eqn])
-        reason->literals[j++] = internal->val(var_id[i - 1]) * var_id[i - 1];
-      else
-        reason->literals[j++] = -internal->val(var_id[i - 1]) * var_id[i - 1];
-    }
 
-  fprintf(stderr, "REASON: ");
+  int j = 0;
+  while (count(ptr)) {
+    int msb = msb_position(ptr);
+    assert(internal->val(var_id[msb - 1]) != 0);
+    if (msb == base_col[eqn])
+      reason->literals[j++] = internal->val(var_id[msb - 1]) * var_id[msb - 1];
+    else
+      reason->literals[j++] = -internal->val(var_id[msb - 1]) * var_id[msb - 1];
+    unset_bit(ptr, msb);
+  }
   for (int i = 0; i < size; ++i)
-    fprintf(stderr, "%d ", reason->literals[i]);
-  fprintf(stderr, "\n");
+    set_bit(ptr, internal->get_gaussian_pos(abs(reason->literals[i])));
 
+  STOP(xanalyze);
   return make_pair(reason, xup_level[eqn]);
 }
 
@@ -433,8 +438,7 @@ bool GaussianDense::all_satisfied() {
         flag ^= internal->val(var_id[j - 1]) > 0;
     }
     if (flag != !!get_bit(ptr, 0)) {
-      printf("%d | ", get_bit(ptr, 0));
-      print(ptr);
+      LOG("ERROR: xclause not satisfied");
       assert(0 && "value is incorrect");
       return false;
     }

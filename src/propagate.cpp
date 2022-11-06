@@ -417,7 +417,7 @@ bool Internal::propagate() {
     for (auto lit : update_lits) {
 #ifndef NDEBUG
       if (!!internal->val(lit.first)) {
-	printf("REASSIGN %d %d\n", lit.first, internal->val(lit.first));
+	LOG("ERROR: REASSIGN %d %d", lit.first, internal->val(lit.first));
 	assert(!internal->val(lit.first));
       }
 #endif
