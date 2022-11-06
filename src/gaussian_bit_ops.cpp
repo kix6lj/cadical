@@ -136,7 +136,7 @@ int GaussianDense::msb_position(char *ptr) {
     pos += WIDTH;
   }
 
-  return num_vars - pos;
+  return (num_bytes_per_eqn << 3) - pos - 1;
 #else
   for (int i = num_vars; i > 0; --i)
     if (ptr[i >> 3] & (1 << (i & 7)))
