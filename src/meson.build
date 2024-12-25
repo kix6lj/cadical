@@ -19,7 +19,6 @@ sources = [
   'backward.cpp',
   'bins.cpp',
   'block.cpp',
-  'cadical.cpp',
   'ccadical.cpp',
   'checker.cpp',
   'clause.cpp',
@@ -117,3 +116,4 @@ cadical_dep = declare_dependency(
                   link_with: cadical_lib,
                   dependencies: dependencies)
 
+cadical_bin = executable('cadical', sources: ['cadical.cpp'], dependencies: [cadical_dep])
