@@ -348,6 +348,7 @@ struct External {
 
   int fixed (int elit) const; // Implemented in 'internal.hpp'.
 
+  void set_config(int elit, float value);
   /*----------------------------------------------------------------------*/
 
   void phase (int elit);

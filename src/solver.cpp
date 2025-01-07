@@ -913,6 +913,20 @@ void Solver::disconnect_learner () {
 
 /*===== IPASIR END =======================================================*/
 
+void Solver::set_config(int lit, float value) {
+  LOG_API_CALL_BEGIN("set_config");
+  external->set_config(lit, value);
+  LOG_API_CALL_END("set_config");
+}
+
+void Solver::set_config(const std::vector<int> &lits, const std::vector<float> &values) {
+  LOG_API_CALL_BEGIN("set_config");
+  size_t n_lits = lits.size();
+  for (size_t i = 0; i < n_lits; ++i)
+    external->set_config(lits[i], values[i]);
+  LOG_API_CALL_END("set_config");
+}
+
 void Solver::connect_fixed_listener (
     FixedAssignmentListener *fixed_listener) {
   LOG_API_CALL_BEGIN ("connect_fixed_listener");

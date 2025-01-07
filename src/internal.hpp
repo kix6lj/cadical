@@ -218,6 +218,7 @@ struct Internal {
   vector<int64_t> ntab;         // number of one-sided occurrences table
   vector<Bins> big;             // binary implication graph
   vector<Watches> wtab;         // table of watches for all literals
+  vector<float> configs;        // Branch configuration for all variables
   Clause *conflict;             // set in 'propagation', reset in 'analyze'
   Clause *ignore;               // ignored during 'vivify_propagate'
   Clause *dummy_binary;         // Dummy binary clause for subsumption
@@ -1204,6 +1205,13 @@ struct Internal {
 
   int try_to_satisfy_formula_by_saved_phases ();
   void produce_failed_assumptions ();
+
+  // Interfaces to setting branch configurations
+  void set_config (int lit, float value) {
+    assert(abs(lit) <= max_var);
+    if (lit)
+      configs[abs(lit)] = value;
+  }
 
   // Main solve & search functions in 'internal.cpp'.
   //

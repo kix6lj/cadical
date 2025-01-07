@@ -285,6 +285,11 @@ bool External::failed_constraint () {
   return internal->failed_constraint ();
 }
 
+void External::set_config(int elit, float value) {
+  const int ilit = internalize(elit);
+  internal->set_config(ilit, value);
+}
+
 void External::phase (int elit) {
   assert (elit);
   assert (elit != INT_MIN);

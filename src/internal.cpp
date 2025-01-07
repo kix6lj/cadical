@@ -150,6 +150,7 @@ void Internal::enlarge (int new_max_var) {
   enlarge_zero (stab, new_vsize);
   enlarge_init (ptab, 2 * new_vsize, -1);
   enlarge_only (ftab, new_vsize);
+  enlarge_init (configs, new_vsize, 0.5f);
   enlarge_vals (new_vsize);
   vsize = new_vsize;
   if (external)

@@ -361,6 +361,10 @@ public:
 
   // ====== END IPASIR =====================================================
 
+  // Interface to set the branch configuration
+  void set_config(int lit, float value);
+  void set_config(const std::vector<int> &lits, const std::vector<float> &values);
+
   // Add call-back which allows to observe when a variable is fixed.
   //
   //   require (VALID)
