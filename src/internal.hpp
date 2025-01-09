@@ -1209,8 +1209,11 @@ struct Internal {
   // Interfaces to setting branch configurations
   void set_config (int lit, float value) {
     assert(abs(lit) <= max_var);
-    if (lit)
+    if (lit) {
       configs[abs(lit)] = value;
+      stab[abs(lit)] = exp(fabs(value - 0.5) * 10);
+      scores.update(abs(lit));
+    }
   }
 
   // Main solve & search functions in 'internal.cpp'.
