@@ -59,7 +59,9 @@ int Internal::decide_phase (int idx, bool target) {
     Random random(opts.seed);
     random += random_cnt;
     random_cnt += 1;
-    phase = random.pick_int(0, 1) ? 1 : -1;
+    // phase = random.pick_int(0, 1) ? 1 : -1;
+    float val = random.pick_double(0.0, 1.0);
+    phase = val < configs[idx] ? 1 : -1;
   }
     
   if (force_saved_phase)

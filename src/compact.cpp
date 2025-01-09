@@ -450,6 +450,7 @@ void Internal::compact () {
   mapper.map_vector (gtab);
   mapper.map_vector (links);
   mapper.map_vector (vtab);
+  mapper.map_vector (configs);
   if (!ntab.empty ())
     mapper.map2_vector (ntab);
   if (!wtab.empty ())
