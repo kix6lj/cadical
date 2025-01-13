@@ -52,15 +52,10 @@ int Internal::next_decision_variable () {
 
 int Internal::decide_phase (int idx, bool target) {
   const int initial_phase = opts.phase ? 1 : -1;
-  static int random_cnt = 0;
-
+  
   int phase = 0;
   if (opts.randsolve) {
-    Random random(opts.seed);
-    random += random_cnt;
-    random_cnt += 1;
-    // phase = random.pick_int(0, 1) ? 1 : -1;
-    float val = random.pick_double(0.0, 1.0);
+    double val = (double) rnd_decide.pick_double(0.0, 1.0);
     phase = val < configs[idx] ? 1 : -1;
   }
     

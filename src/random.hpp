@@ -7,14 +7,26 @@
 
 namespace CaDiCaL {
 
+/* Minimal PCG Generator */
+struct pcg32_random_t { 
+  uint64_t state;  
+  uint64_t inc;
+  
+  // FIXME: dumb function to pass compilation
+  operator uint64_t() const { return state; } 
+ };
+
+uint32_t pcg32_random_r(pcg32_random_t* rng);
+
 class Random {
 
-  uint64_t state;
+  pcg32_random_t rng;
 
   void add (uint64_t a) {
-    if (!(state += a))
-      state = 1;
-    next ();
+    if (!(rng.state += a))
+      rng.state = 1;
+    rng.inc += a;
+    pcg32_random_r(&rng);
   }
 
 public:
@@ -22,24 +34,22 @@ public:
   //
   Random ();
 
-  Random (uint64_t seed) : state (seed) {}
-  void operator= (uint64_t seed) { state = seed; }
-  Random (const Random &other) : state (other.seed ()) {}
+  Random (uint64_t seed) : rng ({seed, seed<<1}) { pcg32_random_r(&rng); }
+  void operator= (pcg32_random_t seed) { rng = seed; }
+  Random (const Random &other) : rng (other.seed ()) {}
 
   void operator+= (uint64_t a) { add (a); }
-  uint64_t seed () const { return state; }
+  pcg32_random_t seed () const { return rng; }
 
-  uint64_t next () {
-    state *= 6364136223846793005ul;
-    state += 1442695040888963407ul;
-    assert (state);
-    return state;
+  uint64_t next() {
+    // FIXME: Temporary solution to pass the compilation
+    return (uint64_t) generate() * generate();
   }
 
   uint32_t generate () {
-    next ();
-    return state >> 32;
+    return pcg32_random_r(&rng);
   }
+
   int generate_int () { return (int) generate (); }
   bool generate_bool () { return generate () < 2147483648u; }
 

@@ -766,6 +766,8 @@ int Internal::local_search () {
 // TODO: check restore_clauses works on higher level
 //
 int Internal::solve (bool preprocess_only) {
+  rnd_decide = Random(opts.seed);
+  
   assert (clause.empty ());
   START (solve);
   if (proof)

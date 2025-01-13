@@ -282,6 +282,8 @@ struct Internal {
   Internal *internal; // proxy to 'this' in macros
   External *external; // proxy to 'external' buddy in 'Solver'
 
+  Random rnd_decide;
+  Random rnd_enlarge;
   /*----------------------------------------------------------------------*/
 
   // Asynchronous termination flag written by 'terminate' and read by
@@ -412,7 +414,10 @@ struct Internal {
 
   // Variable bumping through exponential VSIDS (EVSIDS) as in MiniSAT.
   //
-  bool use_scores () const { return opts.score && stable; }
+  bool use_scores () const { 
+    return true;
+  }
+
   void bump_variable_score (int lit);
   void bump_variable_score_inc ();
   void rescale_variable_scores ();
@@ -1211,7 +1216,7 @@ struct Internal {
     assert(abs(lit) <= max_var);
     if (lit) {
       configs[abs(lit)] = value;
-      stab[abs(lit)] = exp(fabs(value - 0.5) * 10);
+      stab[abs(lit)] = exp(fabs(value - 0.5) * 20);
       scores.update(abs(lit));
     }
   }

@@ -487,6 +487,10 @@ bool Solver::set (const char *arg, int val) {
         arg, val);
   }
   bool res = internal->opts.set (arg, val);
+  if (strcmp(arg, "seed")) {
+    internal->rnd_decide = Random(val);
+    internal->rnd_decide = Random(val);
+  }
   LOG_API_CALL_END ("set", arg, val, res);
 
   return res;
