@@ -130,9 +130,10 @@ template <class T> static void enlarge_zero (vector<T> &v, size_t N) {
 }
 
 template<class T> static void enlarge_rand(vector<T> &v, size_t N, std::function<T()> rand_func) {
+  size_t old_size = v.size();
   if (v.size () < N)
     v.resize (N, T ());
-  for (size_t i = v.size(); i < N; ++i)
+  for (size_t i = old_size; i < N; ++i)
     v[i] = rand_func();
 }
 /*------------------------------------------------------------------------*/
@@ -156,14 +157,10 @@ void Internal::enlarge (int new_max_var) {
   // enlarge_zero (stab, new_vsize);
 
   if (opts.randsolve) {
-    static int rand_cnt = 0;
     std::function<double()> rand_func = [&]() {
-      rand_cnt += 1;
-      Random rand(opts.seed + rand_cnt);
-      return rand.pick_double(0.9, 1.1);
+      return rnd_enlarge.pick_double(0.9, 1.1);
     };
-
-    enlarge_rand (stab, new_vsize, rand_func);
+    enlarge_rand(stab, new_vsize, rand_func);
   } else {
     enlarge_zero(stab, new_vsize);
   }
